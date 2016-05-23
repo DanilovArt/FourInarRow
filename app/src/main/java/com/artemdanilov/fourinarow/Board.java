@@ -4,24 +4,55 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by artemdanilov
  */
 public class Board extends View {
 
-
     private static final String TAG = "DEBUG";
-
+    private final ExecutorService engineExecutor = Executors.newSingleThreadExecutor();
     private final StartActivity context;
-
     private final Four game;
     private final Paint holePainter = new Paint();
+    private final Runnable engineCalculatingTask = new Runnable() {
+        @Override
+        public void run() {
+
+            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+            //Log.i(TAG,"start calculating");
+            int move = Computer.foundMove(game);
+
+            Message msg = (engineResultHandler.obtainMessage());
+            Bundle bundle = new Bundle();
+            bundle.putInt("calculatedMove", move);
+            msg.setData(bundle);
+            engineResultHandler.sendMessage(msg);
+        }
+    };
+    public boolean isEngineCalculate = false;
+    private final Handler engineResultHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Bundle bundle = msg.getData();
+            int calculatedMove = bundle.getInt("calculatedMove");
+            Log.i(TAG, "message handled " + calculatedMove);
+
+            makeComputerMove(calculatedMove);
+        }
+    };
     private float holeSize;
+    private boolean playVsComputer = false;
 
     public Board(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -29,11 +60,30 @@ public class Board extends View {
         game = new Four();
     }
 
+    private void makeComputerMove(int move) {
+
+
+        isEngineCalculate = false;
+
+        Log.i(TAG, "Comp move " + move + " Current player " + game.getCurrentPlayer());
+
+        game.makeMove(move);
+
+        invalidate();
+
+        Four.Player compWinner = game.winner();
+
+        Log.i(TAG, compWinner == null ? "winner null" : compWinner.toString());
+
+        if (compWinner != null)
+            context.showWinner(compWinner);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN)
-            press(event);
+        if (isEngineCalculate)
+            return true;
+        press(event);
         return true;
     }
 
@@ -45,37 +95,42 @@ public class Board extends View {
 
         int columnToMove = parseColumn(x, y);
 
-        Log.i(TAG, "column " + columnToMove);
+        //Log.i(TAG, "column " + columnToMove);
 
         if (columnToMove == -1)
             return;
 
-        game.makeMove(columnToMove);
+        Four.Cell moveTo = game.makeMove(columnToMove);
 
         invalidate();
 
-        Four.Player winner = game.winner();
+        if (moveTo != null) {
 
-        Log.i(TAG, winner == null ? "winner null" : winner.toString());
+            Four.Player winner = game.winner();
 
-        if (winner != null)
-            context.showWinner(winner);
+            Log.i(TAG, winner == null ? "winner null" : winner.toString());
 
+            if (winner != null)
+                context.showWinner(winner);
+            else {
+                if (playVsComputer) {
+                    isEngineCalculate = true;
+                    engineExecutor.execute(engineCalculatingTask);
+                }
+            }
+        }
     }
 
     private int parseColumn(int x, int y) {
 
-        int boardRange = getHeight();
+        int boardWidth = getWidth();
+        int boardHeight = getHeight();
 
-
-        if (x < 0 || x > boardRange || y < 0 || y > boardRange) {
+        if (x < 0 || x > boardWidth || y < 0 || y > boardHeight) {
             return -1;
         }
 
-        int c = (int) (x / holeSize);
-
-        return c;
-
+        return (int) (x / holeSize);
 
     }
 
@@ -113,11 +168,11 @@ public class Board extends View {
     @Override
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
         int size = Math.min(xNew, yNew);
-//        int largestPadding = Math.max(Math.max(getPaddingBottom(), getPaddingTop()),
-//                Math.max(getPaddingLeft(), getPaddingRight()));
+        holeSize = (size ) / Math.max(Four.HEIGHT + 1, Four.WIDTH + 1);
 
+    }
 
-        holeSize = (size /*- 2 * largestPadding*/) / Math.max(Four.HEIGHT + 1, Four.WIDTH + 1);
-
+    public void setPlayer(boolean computer) {
+        playVsComputer = computer;
     }
 }
