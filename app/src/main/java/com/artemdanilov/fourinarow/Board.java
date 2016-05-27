@@ -25,22 +25,28 @@ public class Board extends View {
     private final StartActivity context;
     private final Four game;
     private final Paint holePainter = new Paint();
+    private final long delay = 680;
     private final Runnable engineCalculatingTask = new Runnable() {
         @Override
         public void run() {
+            try {
 
-            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-            //Log.i(TAG,"start calculating");
-            int move = Computer.foundMove(game);
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+                Log.i(TAG,"start calculating");
+                int move = Computer.foundMove(game);
 
-            Message msg = (engineResultHandler.obtainMessage());
-            Bundle bundle = new Bundle();
-            bundle.putInt("calculatedMove", move);
-            msg.setData(bundle);
-            engineResultHandler.sendMessage(msg);
+                Message msg = (engineResultHandler.obtainMessage());
+                Bundle bundle = new Bundle();
+                bundle.putInt("calculatedMove", move);
+                msg.setData(bundle);
+                engineResultHandler.sendMessage(msg);
+            } catch (Exception e) {
+                Log.i(TAG, e.toString());
+            }
         }
     };
     public boolean isEngineCalculate = false;
+    private boolean gameEnd = false;
     private final Handler engineResultHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -53,11 +59,16 @@ public class Board extends View {
     };
     private float holeSize;
     private boolean playVsComputer = false;
+    private long previousClickTime = 0;
 
     public Board(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = (StartActivity) getContext();
         game = new Four();
+    }
+
+    public void setDifficulty(int difficulty) {
+        Computer.setDEPTH(difficulty);
     }
 
     private void makeComputerMove(int move) {
@@ -75,15 +86,23 @@ public class Board extends View {
 
         Log.i(TAG, compWinner == null ? "winner null" : compWinner.toString());
 
-        if (compWinner != null)
+        if (compWinner != null) {
             context.showWinner(compWinner);
+            gameEnd = true;
+        }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (isEngineCalculate)
+        Log.i(TAG, "touch");
+        if (gameEnd)
             return true;
-        press(event);
+        if (System.currentTimeMillis() - previousClickTime > delay) {
+            previousClickTime = System.currentTimeMillis();
+            if (isEngineCalculate)
+                return true;
+            press(event);
+        }
         return true;
     }
 
@@ -110,9 +129,10 @@ public class Board extends View {
 
             Log.i(TAG, winner == null ? "winner null" : winner.toString());
 
-            if (winner != null)
+            if (winner != null) {
+                gameEnd = true;
                 context.showWinner(winner);
-            else {
+            } else {
                 if (playVsComputer) {
                     isEngineCalculate = true;
                     engineExecutor.execute(engineCalculatingTask);
@@ -168,7 +188,7 @@ public class Board extends View {
     @Override
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
         int size = Math.min(xNew, yNew);
-        holeSize = (size ) / Math.max(Four.HEIGHT + 1, Four.WIDTH + 1);
+        holeSize = (size) / Math.max(Four.HEIGHT + 1, Four.WIDTH + 1);
 
     }
 

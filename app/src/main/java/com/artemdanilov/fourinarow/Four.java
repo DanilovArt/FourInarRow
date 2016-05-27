@@ -1,5 +1,7 @@
 package com.artemdanilov.fourinarow;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,7 +38,7 @@ public class Four {
     }
 
     public List<Integer> possibleColumns() {
-        ArrayList<Integer> columns = new ArrayList<>(WIDTH);
+        List<Integer> columns = new ArrayList<>(WIDTH);
         for (int i = 0; i < WIDTH; i++) {
             if (board.get(new Cell(i, HEIGHT)) == null) {
                 columns.add(i);
@@ -49,7 +51,12 @@ public class Four {
         return board.get(new Cell(x, y));
     }
 
+    public Player getCell(Cell cell){
+        return board.get(cell);
+    }
+
     public Cell makeMove(int column) {
+        Log.i(TAG,"make move");
         Cell moveTo = makeMove(currentPlayer, column);
         if (moveTo != null) {
             if (currentPlayer == Player.WHITE)
@@ -207,11 +214,11 @@ public class Four {
     }
 
 
-    public enum Player {
+    public static enum Player {
         BLACK, WHITE
     }
 
-    public class Cell {
+    public static class Cell {
         private final int x;
         private final int y;
 

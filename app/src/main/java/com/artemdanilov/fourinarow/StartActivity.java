@@ -20,9 +20,12 @@ public class StartActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_start);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-       final Board board=(Board)findViewById(R.id.view);
+        final Board board = (Board) findViewById(R.id.view);
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        int diff = getIntent().getExtras().getInt("DIFFICULTY", 5);
+        board.setDifficulty(diff);
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setTitle("Choose opponent");
         dialogBuilder.setPositiveButton("Two player", new DialogInterface.OnClickListener() {
             @Override
