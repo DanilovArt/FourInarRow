@@ -1,7 +1,7 @@
 package com.artemdanilov.fourinarow;
 
 import android.util.Log;
-import android.util.Pair;
+//import android.util.Pair;
 
 import com.artemdanilov.fourinarow.Four.Cell;
 
@@ -12,6 +12,43 @@ import java.util.List;
  * Created by artemdanilov
  */
 public class Computer {
+
+    public static class Pair<F, S> {
+        public final F first;
+        public final S second;
+
+        public Pair(F first, S second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Pair<?, ?> pair = (Pair<?, ?>) o;
+
+            return first != null ? first.equals(pair.first) : pair.first == null &&
+                    (second != null ? second.equals(pair.second) : pair.second == null);
+
+        }
+
+        @Override
+        public String toString() {
+            return "first: " + first.toString() +
+                    ", second: " + second.toString() +
+                    '\n';
+        }
+
+        @Override
+        public int hashCode() {
+            int result = first != null ? first.hashCode() : 0;
+            result = 31 * result + (second != null ? second.hashCode() : 0);
+            return result;
+        }
+    }
+
     static String TAG = "DEBUG";
     private static int DEPTH = 4;
 
@@ -30,7 +67,7 @@ public class Computer {
 
             int score = alphaBeta(game, DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
             scored.add(new Pair<>(column, score));
-Log.i(TAG,"column "+column+" score "+score);
+//Log.i(TAG,"column "+column+" score "+score);
             game.unmakeMove(move);
         }
         if (scored.isEmpty())
@@ -45,7 +82,7 @@ Log.i(TAG,"column "+column+" score "+score);
             }
         }
         return bestColumn;}catch (Exception e){
-            Log.i(TAG,e.toString());
+          //  Log.i(TAG,e.toString());
             return 0;
         }
     }
@@ -58,7 +95,7 @@ Log.i(TAG,"column "+column+" score "+score);
         try {
 
 
-            Log.i(TAG, "depth = " + depth);
+//            Log.i(TAG, "depth = " + depth);
             if (depth == 0)
                 return eval(node, maximizingPlayer);
             if (maximizingPlayer) {
@@ -91,7 +128,7 @@ Log.i(TAG,"column "+column+" score "+score);
 
             }
         }catch (Exception e){
-            Log.i(TAG,e.toString());
+        //    Log.i(TAG,e.toString());
             return 0;
         }
 
@@ -99,7 +136,7 @@ Log.i(TAG,"column "+column+" score "+score);
 
     private static int eval(Four node, boolean maxPlayer) {
         if (!maxPlayer) return -eval(node, true);
-        Log.i(TAG, "Eval");
+     //   Log.i(TAG, "Eval");
         int result = 0;
         int width = Four.WIDTH;
         int height = Four.HEIGHT;
@@ -120,7 +157,7 @@ Log.i(TAG,"column "+column+" score "+score);
     }
 
     private static int scoreDirection(Four node, Four.Cell currentCell, Four.Player player, int xShift, int yShift) {
-        Log.i(TAG, "ScoreDirection");
+       // Log.i(TAG, "ScoreDirection");
         int result = 0;
         int winLength = Four.WIN_LENGTH;
         int fx = currentCell.getX() + xShift * (winLength - 1);
@@ -181,3 +218,5 @@ Log.i(TAG,"column "+column+" score "+score);
     }
 
 }
+
+

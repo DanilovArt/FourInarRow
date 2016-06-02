@@ -11,8 +11,8 @@ import java.util.List;
  * Created by artemdanilov
  */
 public class Four {
-    public static final int WIDTH = 6;
-    public static final int HEIGHT = 5;
+    public static final int WIDTH = 7;
+    public static final int HEIGHT = 6;
     public static final int WIN_LENGTH = 4;
     private static final String TAG = "DEBUG";
     private final HashMap<Cell, Player> board;
@@ -56,7 +56,7 @@ public class Four {
     }
 
     public Cell makeMove(int column) {
-        Log.i(TAG,"make move");
+//        Log.i(TAG,"make move");
         Cell moveTo = makeMove(currentPlayer, column);
         if (moveTo != null) {
             if (currentPlayer == Player.WHITE)
@@ -91,8 +91,8 @@ public class Four {
     }
 
     public boolean hasFreeCells() {
-        for (int x = 0; x <= WIDTH; x++) {
-            for (int y = 0; y <= HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
                 if (board.get(new Cell(x, y)) == null)
                     return true;
             }
@@ -104,7 +104,7 @@ public class Four {
         Player player = board.remove(move);
         if (player == null)
             return;
-        assert (player == currentPlayer);
+        //assert (player == currentPlayer);
         if (player == Player.WHITE) {
             currentPlayer = Player.BLACK;
         } else {
@@ -193,8 +193,8 @@ public class Four {
     }
 
     public Player winner() {
-        for (int x = 0; x <= WIDTH; x++) {
-            for (int y = 0; y <= HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
 
                 Cell cell = new Cell(x, y);
                 if (board.get(cell) != null) {

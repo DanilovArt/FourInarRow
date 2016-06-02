@@ -159,20 +159,20 @@ public class Board extends View {
         //Log.i(TAG, "size " + holeSize);
         holePainter.reset();
         holePainter.setColor(Color.YELLOW);
-        canvas.drawRect(0, 0, (int) ((Four.WIDTH + 1) * holeSize),
-                (int) ((Four.HEIGHT + 1) * holeSize), holePainter);
-        for (int x = 0; x <= Four.WIDTH; x++) {
-            for (int y = 0; y <= Four.HEIGHT; y++) {
-                Four.Player player = game.getCell(x, Four.HEIGHT - y);
+        canvas.drawRect(0,0, (int) ((6+1 ) * holeSize),
+                (int) ((5+1) * holeSize), holePainter);
+        for (int x = 0; x <=6; x++) {
+            for (int y = 0; y <=5; y++) {
+                Four.Player player = game.getCell(x, 5-y);
                 if (player == null) {
-                    // Log.i(TAG, "x y payer null" + x + " " + y);
+                     Log.i(TAG, "x y payer null" + x + " " + y);
                     holePainter.setColor(Color.GRAY);
                 } else if (player == Four.Player.WHITE) {
-                    // Log.i(TAG, "x y payer white" + x + " " + y);
+                     Log.i(TAG, "x y payer white" + x + " " + y);
 
                     holePainter.setColor(Color.WHITE);
                 } else {
-                    // Log.i(TAG, "x y payer black" + x + " " + y);
+                     Log.i(TAG, "x y payer black" + x + " " + y);
 
                     holePainter.setColor(Color.BLACK);
                 }
@@ -188,7 +188,7 @@ public class Board extends View {
     @Override
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
         int size = Math.min(xNew, yNew);
-        holeSize = (size) / Math.max(Four.HEIGHT + 1, Four.WIDTH + 1);
+        holeSize = (size) / Math.max(Four.HEIGHT+1 , Four.WIDTH+1);
 
     }
 
